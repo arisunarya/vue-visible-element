@@ -137,7 +137,6 @@ var script = /*#__PURE__*/{
       immediate: true,
 
       handler(scroll) {
-        if (process.server) return;
         this.$nextTick(() => {
           if (typeof window === 'undefined') return;
           if (scroll) this.addScrollEvent(window);else this.removeScrollEvent(window);
@@ -149,7 +148,6 @@ var script = /*#__PURE__*/{
       immediate: true,
 
       handler(scrollable) {
-        if (process.server) return;
         this.$nextTick(() => {
           if (typeof window === 'undefined') return;
           if (scrollable) this.addScrollEvent(this.$el);else this.removeScrollEvent(this.$el);
@@ -277,7 +275,7 @@ const __vue_inject_styles__ = undefined;
 const __vue_scope_id__ = undefined;
 /* module identifier */
 
-const __vue_module_identifier__ = "data-v-a4d7d27c";
+const __vue_module_identifier__ = "data-v-4b7bcffa";
 /* functional template */
 
 const __vue_is_functional_template__ = false;

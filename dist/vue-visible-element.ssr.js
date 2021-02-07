@@ -194,7 +194,6 @@ function _nonIterableRest() {
       handler: function handler(scroll) {
         var _this2 = this;
 
-        if (process.server) return;
         this.$nextTick(function () {
           if (typeof window === 'undefined') return;
           if (scroll) _this2.addScrollEvent(window);else _this2.removeScrollEvent(window);
@@ -206,7 +205,6 @@ function _nonIterableRest() {
       handler: function handler(scrollable) {
         var _this3 = this;
 
-        if (process.server) return;
         this.$nextTick(function () {
           if (typeof window === 'undefined') return;
           if (scrollable) _this3.addScrollEvent(_this3.$el);else _this3.removeScrollEvent(_this3.$el);
@@ -326,7 +324,7 @@ var __vue_inject_styles__ = undefined;
 var __vue_scope_id__ = undefined;
 /* module identifier */
 
-var __vue_module_identifier__ = "data-v-a4d7d27c";
+var __vue_module_identifier__ = "data-v-4b7bcffa";
 /* functional template */
 
 var __vue_is_functional_template__ = false;
