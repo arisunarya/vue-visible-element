@@ -1,6 +1,6 @@
 {
   "name": "vue-visible-element",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "",
   "main": "dist/vue-visible-element.ssr.js",
   "browser": "dist/vue-visible-element.esm.js",
