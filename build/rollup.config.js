@@ -42,6 +42,7 @@ const baseConfig = {
     vue: {
       css: true,
       template: {
+        optimizeSSR: true,
         isProduction: true,
       },
     },

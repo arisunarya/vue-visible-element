@@ -196,6 +196,7 @@ function _nonIterableRest() {
 
         if (process.server) return;
         this.$nextTick(function () {
+          if (typeof window === 'undefined') return;
           if (scroll) _this2.addScrollEvent(window);else _this2.removeScrollEvent(window);
         });
       }
@@ -324,7 +325,7 @@ var __vue_inject_styles__ = undefined;
 var __vue_scope_id__ = undefined;
 /* module identifier */
 
-var __vue_module_identifier__ = "data-v-4b9ac59a";
+var __vue_module_identifier__ = "data-v-7535073b";
 /* functional template */
 
 var __vue_is_functional_template__ = false;
