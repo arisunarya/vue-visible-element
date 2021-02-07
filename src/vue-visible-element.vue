@@ -163,6 +163,7 @@ export default /*#__PURE__*/{
 			handler (scrollable) {
 				if (process.server) return
 				this.$nextTick(() => {
+					if (typeof window === 'undefined') return
 					if (scrollable) this.addScrollEvent(this.$el)
 					else this.removeScrollEvent(this.$el)
 				})
