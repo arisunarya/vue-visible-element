@@ -150,8 +150,9 @@ export default /*#__PURE__*/{
 		scroll: {
 			immediate: true,
 			handler (scroll) {
-				if (typeof window === 'undefined') return
+				if (process.server) return
 				this.$nextTick(() => {
+					if (typeof window === 'undefined') return
 					if (scroll) this.addScrollEvent(window)
 					else this.removeScrollEvent(window)
 				})
@@ -160,6 +161,7 @@ export default /*#__PURE__*/{
 		scrollable: {
 			immediate: true,
 			handler (scrollable) {
+				if (process.server) return
 				this.$nextTick(() => {
 					if (scrollable) this.addScrollEvent(this.$el)
 					else this.removeScrollEvent(this.$el)
