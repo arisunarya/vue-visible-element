@@ -1,7 +1,28 @@
 {
   "name": "vue-visible-element",
   "version": "1.0.7",
-  "description": "",
+  "description": "A Vue component that detect visibility relative to viewport, parent container or both",
+  "homepage": "https://github.com/arisunarya/vue-visible-element#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arisunarya/vue-visible-element.git"
+  },
+  "keywords": [
+    "track",
+    "tracker",
+    "impression",
+    "visible",
+    "visiblity",
+    "list",
+    "element",
+    "viewport",
+    "scroll",
+    "vue"
+  ],
+  "bugs": {
+    "url": "https://github.com/arisunarya/vue-visible-element/issues"
+  },
+  "license": "MIT",
   "main": "dist/vue-visible-element.ssr.js",
   "browser": "dist/vue-visible-element.esm.js",
   "module": "dist/vue-visible-element.esm.js",
