@@ -80,7 +80,11 @@ function _nonIterableRest() {
     },
     throttle: {
       type: Number,
-      default: 500
+      default: 200
+    },
+    impression: {
+      type: Number,
+      default: 0
     }
   },
   data: function data() {
@@ -114,7 +118,45 @@ function _nonIterableRest() {
         });
       };
 
-      for (var index = 0; index < childs.length; index++) {
+      var isVisibleOnScreen = function isVisibleOnScreen(elm) {
+        var rect = elm.getBoundingClientRect();
+        var rectPosX = rect.x + rect.width / 2;
+        var rectPosY = rect.y + rect.height / 2;
+        return rectPosX >= 0 && rectPosY >= 0 && rectPosX <= window.innerWidth && rectPosY <= window.innerHeight;
+      };
+
+      var isFullyVisibleOnScreen = function isFullyVisibleOnScreen(elm) {
+        var rect = elm.getBoundingClientRect();
+        return rect.x + rect.width >= 0 && rect.y + rect.height >= 0 && rect.x <= window.innerWidth && rect.y <= window.innerHeight;
+      };
+
+      var isVisibleOnCanvas = function isVisibleOnCanvas(elm) {
+        var rect = elm.getBoundingClientRect();
+
+        var canvasRect = _this.$el.getBoundingClientRect();
+
+        var canvasPosX = rect.x - canvasRect.x + rect.width / 2;
+        var canvasPosY = rect.y - canvasRect.y + rect.height / 2;
+        return canvasPosX >= 0 && canvasPosY >= 0 && canvasPosX <= canvasRect.width && canvasPosY <= canvasRect.height;
+      };
+
+      var isFullyVisibleOnCanvas = function isFullyVisibleOnCanvas(elm) {
+        var rect = elm.getBoundingClientRect();
+
+        var canvasRect = _this.$el.getBoundingClientRect();
+
+        return rect.x - canvasRect.x + rect.width >= 0 && rect.y - canvasRect.y + rect.height >= 0 && rect.x - canvasRect.x <= canvasRect.width && rect.y - canvasRect.y <= canvasRect.height;
+      };
+
+      var isVisible = function isVisible(elm) {
+        return isVisibleOnCanvas(elm) && isVisibleOnScreen(elm);
+      };
+
+      var isFullyVisible = function isFullyVisible(elm) {
+        return isFullyVisibleOnCanvas(elm) && isFullyVisibleOnScreen(elm);
+      };
+
+      var _loop = function _loop(index) {
         var elm = childs[index].elm;
         if (!getChild(elm)) addChild(elm);
         var child = getChild(elm);
@@ -122,42 +164,52 @@ function _nonIterableRest() {
           index: index,
           elm: elm
         };
-        var rect = elm.getBoundingClientRect();
-        var rectPosX = rect.x + rect.width / 2;
-        var rectPosY = rect.y + rect.height / 2;
-        var canvasRect = this.$el.getBoundingClientRect();
-        var canvasPosX = rect.x - canvasRect.x + rect.width / 2;
-        var canvasPosY = rect.y - canvasRect.y + rect.height / 2;
-        var isVisibleOnScreen = rectPosX >= 0 && rectPosY >= 0 && rectPosX <= window.innerWidth && rectPosY <= window.innerHeight;
-        var isFullyVisibleOnScreen = rect.x + rect.width >= 0 && rect.y + rect.height >= 0 && rect.x <= window.innerWidth && rect.y <= window.innerHeight;
-        var isVisibleOnCanvas = canvasPosX >= 0 && canvasPosY >= 0 && canvasPosX <= canvasRect.width && canvasPosY <= canvasRect.height;
-        var isFullyVisibleOnCanvas = rect.x - canvasRect.x + rect.width >= 0 && rect.y - canvasRect.y + rect.height >= 0 && rect.x - canvasRect.x <= canvasRect.width && rect.y - canvasRect.y <= canvasRect.height;
-        var isVisible = isVisibleOnCanvas && isVisibleOnScreen;
-        var isFullyVisible = isFullyVisibleOnCanvas && isFullyVisibleOnScreen;
 
-        if (!isFullyVisible && child.visible) {
+        if (!isFullyVisible(elm) && child.visible) {
           child.visible = false;
-          this.$emit('invisible', payload);
-        } else if (isVisible && !child.visible) {
-          child.visible = true;
-          this.$emit('visible', payload);
+
+          _this.$emit('invisible', payload);
+        } else if (isVisible(elm) && !child.visible) {
+          setTimeout(function () {
+            if (_this.impression === 0 || isVisible(elm) && !child.visible) {
+              child.visible = true;
+
+              _this.$emit('visible', payload);
+            }
+          }, _this.impression);
         }
 
-        if (!isFullyVisibleOnCanvas && child.onCanvas) {
+        if (!isFullyVisibleOnCanvas(elm) && child.onCanvas) {
           child.onCanvas = false;
-          this.$emit('offcanvas', payload);
-        } else if (isVisibleOnCanvas && !child.onCanvas) {
-          child.onCanvas = true;
-          this.$emit('oncanvas', payload);
+
+          _this.$emit('offcanvas', payload);
+        } else if (isVisibleOnCanvas(elm) && !child.onCanvas) {
+          setTimeout(function () {
+            if (_this.impression === 0 || isVisibleOnCanvas(elm) && !child.onCanvas) {
+              child.onCanvas = true;
+
+              _this.$emit('oncanvas', payload);
+            }
+          }, _this.impression);
         }
 
-        if (!isFullyVisibleOnScreen && child.onScreen) {
+        if (!isFullyVisibleOnScreen(elm) && child.onScreen) {
           child.onScreen = false;
-          this.$emit('offscreen', payload);
-        } else if (isVisibleOnScreen && !child.onScreen) {
-          child.onScreen = true;
-          this.$emit('onscreen', payload);
+
+          _this.$emit('offscreen', payload);
+        } else if (isVisibleOnScreen(elm) && !child.onScreen) {
+          setTimeout(function () {
+            if (_this.impression === 0 || isVisibleOnScreen(elm) && !child.onScreen) {
+              child.onScreen = true;
+
+              _this.$emit('onscreen', payload);
+            }
+          }, _this.impression);
         }
+      };
+
+      for (var index = 0; index < childs.length; index++) {
+        _loop(index);
       }
     },
     reset: function reset() {
@@ -214,7 +266,7 @@ function _nonIterableRest() {
   },
   mounted: function mounted() {
     this.throttled = this.throttleFn(this.scan, this.throttle);
-    if (this.immediate) this.scan();
+    if (this.immediate) this.throttled();
   },
   beforeDestroy: function beforeDestroy() {
     if (this.scroll) this.removeScrollEvent(window);
@@ -324,7 +376,7 @@ var __vue_inject_styles__ = undefined;
 var __vue_scope_id__ = undefined;
 /* module identifier */
 
-var __vue_module_identifier__ = "data-v-4b7bcffa";
+var __vue_module_identifier__ = "data-v-79341b04";
 /* functional template */
 
 var __vue_is_functional_template__ = false;

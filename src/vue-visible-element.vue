@@ -25,7 +25,11 @@ export default /*#__PURE__*/{
 		},
 		throttle: {
 			type: Number,
-			default: 500
+			default: 200
+		},
+		impression: {
+			type: Number,
+			default: 0
 		}
 	},
 	data () {
@@ -48,73 +52,101 @@ export default /*#__PURE__*/{
 				elm
 			})
 
+			const isVisibleOnScreen = elm => {
+				const rect = elm.getBoundingClientRect()
+				const rectPosX = rect.x + (rect.width / 2)
+				const rectPosY = rect.y + (rect.height / 2)
+				return (
+					rectPosX >= 0 &&
+					rectPosY >= 0 &&
+					rectPosX <= window.innerWidth &&
+					rectPosY <= window.innerHeight
+				)
+			}
+
+			const isFullyVisibleOnScreen = elm => {
+				const rect = elm.getBoundingClientRect()
+				return (
+					rect.x + rect.width >= 0 &&
+					rect.y + rect.height >= 0 &&
+					rect.x <= window.innerWidth &&
+					rect.y <= window.innerHeight
+				)
+			}
+
+			const isVisibleOnCanvas = elm => {
+				const rect = elm.getBoundingClientRect()
+				const canvasRect = this.$el.getBoundingClientRect()
+				const canvasPosX =  rect.x - canvasRect.x + (rect.width / 2)
+				const canvasPosY =  rect.y - canvasRect.y + (rect.height / 2)
+				return (
+					canvasPosX >= 0 &&
+					canvasPosY >= 0 &&
+					canvasPosX <= canvasRect.width &&
+					canvasPosY <= canvasRect.height
+				)
+			}
+
+			const isFullyVisibleOnCanvas = elm => {
+				const rect = elm.getBoundingClientRect()
+				const canvasRect = this.$el.getBoundingClientRect()
+				return (
+					rect.x - canvasRect.x + rect.width >= 0 &&
+					rect.y - canvasRect.y + rect.height >= 0 &&
+					rect.x - canvasRect.x <= canvasRect.width &&
+					rect.y - canvasRect.y <= canvasRect.height
+				)
+			}
+
+			const isVisible = elm =>
+				isVisibleOnCanvas(elm) &&
+				isVisibleOnScreen(elm)
+
+			const isFullyVisible = elm =>
+				isFullyVisibleOnCanvas(elm) &&
+				isFullyVisibleOnScreen(elm)
+
 			for(let index = 0; index < childs.length; index++) {
 				const { elm } = childs[index]
 				if (!getChild(elm)) addChild(elm)
 
 				const child = getChild(elm)
 				const payload = { index, elm }
-				const rect = elm.getBoundingClientRect()
-				const rectPosX = rect.x + (rect.width / 2)
-				const rectPosY = rect.y + (rect.height / 2)
-				const canvasRect = this.$el.getBoundingClientRect()
-				const canvasPosX =  rect.x - canvasRect.x + (rect.width / 2)
-				const canvasPosY =  rect.y - canvasRect.y + (rect.height / 2)
 
-				const isVisibleOnScreen =
-					rectPosX >= 0 &&
-					rectPosY >= 0 &&
-					rectPosX <= window.innerWidth &&
-					rectPosY <= window.innerHeight
-
-				const isFullyVisibleOnScreen = 
-					rect.x + rect.width >= 0 &&
-					rect.y + rect.height >= 0 &&
-					rect.x <= window.innerWidth &&
-					rect.y <= window.innerHeight
-
-				const isVisibleOnCanvas = 
-					canvasPosX >= 0 &&
-					canvasPosY >= 0 &&
-					canvasPosX <= canvasRect.width &&
-					canvasPosY <= canvasRect.height
-				
-				const isFullyVisibleOnCanvas =
-					rect.x - canvasRect.x + rect.width >= 0 &&
-					rect.y - canvasRect.y + rect.height >= 0 &&
-					rect.x - canvasRect.x <= canvasRect.width &&
-					rect.y - canvasRect.y <= canvasRect.height
-
-				const isVisible =
-					isVisibleOnCanvas &&
-					isVisibleOnScreen
-
-				const isFullyVisible =
-					isFullyVisibleOnCanvas &&
-					isFullyVisibleOnScreen
-
-				if (!isFullyVisible && child.visible) {
+				if (!isFullyVisible(elm) && child.visible) {
 					child.visible = false
 					this.$emit('invisible', payload)
-				} else if (isVisible && !child.visible) {
-					child.visible = true
-					this.$emit('visible', payload)
+				} else if (isVisible(elm) && !child.visible) {
+					setTimeout(() => {
+						if (this.impression === 0 || (isVisible(elm) && !child.visible)) {
+							child.visible = true
+							this.$emit('visible', payload)
+						}
+					}, this.impression)
 				}
 
-				if (!isFullyVisibleOnCanvas && child.onCanvas) {
+				if (!isFullyVisibleOnCanvas(elm) && child.onCanvas) {
 					child.onCanvas = false
 					this.$emit('offcanvas', payload)
-				} else if (isVisibleOnCanvas && !child.onCanvas) {
-					child.onCanvas = true
-					this.$emit('oncanvas', payload)
+				} else if (isVisibleOnCanvas(elm) && !child.onCanvas) {
+					setTimeout(() => {
+						if (this.impression === 0 || (isVisibleOnCanvas(elm) && !child.onCanvas)) {
+							child.onCanvas = true
+							this.$emit('oncanvas', payload)
+						}
+					}, this.impression)
 				}
 
-				if (!isFullyVisibleOnScreen && child.onScreen) {
+				if (!isFullyVisibleOnScreen(elm) && child.onScreen) {
 					child.onScreen = false
 					this.$emit('offscreen', payload)
-				} else if (isVisibleOnScreen && !child.onScreen) {
-					child.onScreen = true
-					this.$emit('onscreen', payload)
+				} else if (isVisibleOnScreen(elm) && !child.onScreen) {
+					setTimeout(() => {
+						if (this.impression === 0 || (isVisibleOnScreen(elm) && !child.onScreen)) {
+							child.onScreen = true
+							this.$emit('onscreen', payload)
+						}
+					}, this.impression)
 				}
 			}
 		},
@@ -170,7 +202,7 @@ export default /*#__PURE__*/{
 	},
 	mounted () {
 		this.throttled = this.throttleFn(this.scan, this.throttle)
-		if (this.immediate) this.scan()
+		if (this.immediate) this.throttled()
 	},
 	beforeDestroy () {
 		if (this.scroll) this.removeScrollEvent(window)
