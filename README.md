@@ -14,7 +14,7 @@ map function
 **throttle**\
 throttle value for scroll event
  - type: *Number*
- - default: `500`
+ - default: `200`
 
 **scroll**\
 enable/disable scroll event
