@@ -1,6 +1,6 @@
 {
   "name": "vue-visible-element",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "A Vue component that detect visibility relative to viewport, parent container or both",
   "homepage": "https://github.com/arisunarya/vue-visible-element#readme",
   "repository": {
