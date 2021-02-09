@@ -1,0 +1,41 @@
+
+.box {
+	height: 200px;
+	background: #eee;
+	margin: 0 -16px 16px;
+}
+.scroll {
+	height: 250px;
+	overflow: auto;
+}
+.parent {
+	display: flex;
+	flex-wrap: wrap;
+}
+.parent.carousel {
+  flex-wrap: unset;
+}
+.child {
+	flex: 0 0 auto;
+	width: 50%;
+	padding: 8px;
+}
+.card {
+  padding: 10px;
+  background: #eee;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  position: relative;
+}
+.card::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0%;
+  right: 0%;
+  height: 1px;
+  background: red;
+}
+
